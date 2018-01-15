@@ -2,7 +2,7 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 
 public class Percolation {
-    int gridSize; // size of a square grid
+    int gridSize;  // size of a square grid
     int[] openSites;  // 0 closed, 1, open
     int numberOfOpenSites; // counter for how many sites are open
     WeightedQuickUnionUF weightedQuickUnionUF;
