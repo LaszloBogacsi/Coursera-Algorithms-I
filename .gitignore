@@ -1,5 +1,5 @@
-.idea/
-.lift/
+**/.idea/
+**/.lift/
 *.iml
 *.class
 *.zip
