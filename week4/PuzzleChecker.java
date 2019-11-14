@@ -31,10 +31,10 @@ import edu.princeton.cs.algs4.StdOut;
 public class PuzzleChecker {
 
     public static void main(String[] args) {
+        args = new String[] {"puzzle2x2-01.txt"};
 
         // for each command-line argument
         for (String filename : args) {
-
             // read in the board specified in the filename
             In in = new In(filename);
             int n = in.readInt();
@@ -47,6 +47,9 @@ public class PuzzleChecker {
 
             // solve the slider puzzle
             Board initial = new Board(tiles);
+            System.out.println(initial.toString());
+            System.out.println(initial.hamming());
+            System.out.println(initial.manhattan());
             Solver solver = new Solver(initial);
             StdOut.println(filename + ": " + solver.moves());
         }
