@@ -1,4 +1,7 @@
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -72,13 +75,21 @@ public class Board {
     public boolean isGoal() {
         return this.hamming() == 0;
     }
-//
-//    // does this board equal y?
-//    public boolean equals(Object y)
-//
-//    // all neighboring boards
-//    public Iterable<Board> neighbors()
-//
+
+    // does this board equal y?
+    public boolean equals(Object y) {
+        Board that = (Board) y;
+        boolean hasSameSize = this.dimension() == that.dimension();
+        boolean tilesInSamePosition = Arrays.deepEquals(this.tiles, that.tiles);
+        return hasSameSize && tilesInSamePosition;
+    }
+
+    // all neighboring boards
+    public Iterable<Board> neighbors() {
+
+        return Collections.emptyList();
+    }
+
 //    // a board that is obtained by exchanging any pair of tiles
 //    public Board twin()
 //

@@ -28,12 +28,15 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PuzzleChecker {
 
     public static void main(String[] args) {
         args = new String[] {"puzzle2x2-01.txt"};
+        List<Board> boards = new ArrayList<>();
 
-        // for each command-line argument
         for (String filename : args) {
             // read in the board specified in the filename
             In in = new In(filename);
@@ -47,11 +50,14 @@ public class PuzzleChecker {
 
             // solve the slider puzzle
             Board initial = new Board(tiles);
+            boards.add(initial);
             System.out.println(initial.toString());
             System.out.println(initial.hamming());
             System.out.println(initial.manhattan());
+            System.out.println("neighbours: " + initial.neighbors());
             Solver solver = new Solver(initial);
             StdOut.println(filename + ": " + solver.moves());
         }
+
     }
 }
