@@ -86,11 +86,22 @@ public class Board {
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-
+        getZeroPos(tiles);
         return Collections.emptyList();
     }
 
-//    // a board that is obtained by exchanging any pair of tiles
+    private void getZeroPos(int[][] tiles) {
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[i].length; j++) {
+                int t = tiles[i][j];
+                if (t == 0) {
+                    System.out.println(i + " " + j);
+                }
+            }
+        }
+    }
+
+    //    // a board that is obtained by exchanging any pair of tiles
 //    public Board twin()
 //
     // unit testing (not graded)

@@ -34,7 +34,7 @@ import java.util.List;
 public class PuzzleChecker {
 
     public static void main(String[] args) {
-        args = new String[] {"puzzle2x2-01.txt"};
+        args = new String[] {"puzzle3x3-05.txt"};
         List<Board> boards = new ArrayList<>();
 
         for (String filename : args) {
