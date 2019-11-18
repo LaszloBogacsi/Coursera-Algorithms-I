@@ -1,9 +1,9 @@
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Board {
     private int[][] tiles;
@@ -16,15 +16,15 @@ public class Board {
 
     // string representation of this board
     public String toString() {
-        String PADDING = " ";
         StringBuilder sb = new StringBuilder();
         sb.append(this.dimension());
-        sb.append("\n" + PADDING);
-        for (int i = 0; i < tiles.length; i++) {
-            String row = Arrays.stream(tiles[i]).mapToObj(String::valueOf).collect(Collectors.joining(" "));
-            sb.append(row);
-            sb.append("\n" + PADDING);
-        }
+        sb.append("\n ");
+        final String body = Arrays.stream(tiles)
+                .map(row -> Arrays.stream(row)
+                        .mapToObj(String::valueOf)
+                        .collect(Collectors.joining(" ")))
+                .collect(Collectors.joining("\n "));
+        sb.append(body);
         return sb.toString();
     }
 
@@ -86,24 +86,138 @@ public class Board {
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        getZeroPos(tiles);
-        return Collections.emptyList();
+        final int[] zeroPos = getZeroPos(tiles);
+        System.out.println("zeroPos = " + zeroPos[0] + ":" +zeroPos[1]);
+        return createNeighbour(zeroPos[0], zeroPos[1]);
     }
 
-    private void getZeroPos(int[][] tiles) {
+    private List<Board> createNeighbour(int row, int col) {
+        List<Board> neighbouringBoards = new ArrayList<>();
+        // go left (col -1)
+        if (col - 1 >= 0) {
+            neighbouringBoards.add(new Board(exchangeZeroTo(row, col, row, col - 1)));
+        }
+        // go right (col +1)
+        if (col + 1 <= dimension()) {
+            neighbouringBoards.add(new Board(exchangeZeroTo(row, col, row, col + 1)));
+        }
+        // go down (row + 1)
+        if (row + 1 <= dimension()) {
+            neighbouringBoards.add(new Board(exchangeZeroTo(row, col, row + 1, col)));
+        }
+        // go up (row - 1)
+        if (row - 1 >= 0) {
+            neighbouringBoards.add(new Board(exchangeZeroTo(row, col, row - 1, col)));
+        }
+
+        return neighbouringBoards;
+    }
+
+    private int[][] exchangeZeroTo(int row, int col, int newRow, int newCol) {
+        int[][] copy = Arrays.stream(tiles).map(int[]::clone).toArray(int[][]::new);
+        int valToMove = copy[newRow][newCol];
+        copy[newRow][newCol] = 0;
+        copy[row][col] = valToMove;
+        return copy;
+    }
+
+    private int[] getZeroPos(int[][] tiles) {
+        int row = 0;
+        int col = 0;
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
                 int t = tiles[i][j];
                 if (t == 0) {
-                    System.out.println(i + " " + j);
+                    row = i;
+                    col = j;
                 }
             }
         }
+        return new int[]{row, col};
     }
 
     //    // a board that is obtained by exchanging any pair of tiles
 //    public Board twin()
 //
     // unit testing (not graded)
-    public static void main(String[] args) {}
+    public static void main(String[] args) {
+        int[][] threeByThree = {
+                {1, 0, 2},
+                {4, 6, 3},
+                {7, 5, 8}
+        };
+        Board board = new Board(threeByThree);
+
+        int[][] threeByThreeSolved = {
+                {0, 1, 2},
+                {3, 4, 5},
+                {6, 7, 8}
+        };
+        Board solvedBoard = new Board(threeByThreeSolved);
+
+        StdOut.println("toString: " + board.toString());
+        assert board.toString().equals(
+                "3\n" +
+                " 1 0 2\n" +
+                " 4 6 3\n" +
+                " 7 5 8");
+        StdOut.println("Dimension: " + board.dimension());
+        assert board.dimension() == threeByThree.length;
+
+        final int hamming = board.hamming();
+        StdOut.println("Hamming Distance: " + hamming);
+        assert hamming == 6;
+        final int solvedHamming = solvedBoard.hamming();
+        StdOut.println("Hamming Distance (SOLVED): " + solvedHamming);
+        assert solvedHamming == 0;
+
+        final int manhattan = board.manhattan();
+        StdOut.println("Manhattan Distance: " + manhattan);
+        assert manhattan == 9;
+        final int solvedManhattan = solvedBoard.manhattan();
+        StdOut.println("Manhattan Distance (SOLVED): " + solvedManhattan);
+        assert solvedManhattan == 0;
+
+        final boolean isGoal = solvedBoard.isGoal();
+        StdOut.println("Is Goal? " + isGoal);
+        assert isGoal;
+        final boolean isGoalUnsolved = board.isGoal();
+        StdOut.println("Is Goal? " + isGoalUnsolved);
+        assert !isGoalUnsolved;
+
+
+        final boolean isSameEqual = board.equals(new Board(threeByThree));
+        StdOut.println("Is Equal? " + isSameEqual);
+        assert isSameEqual;
+        final boolean isDiffEqual = board.equals(new Board(threeByThreeSolved));
+        StdOut.println("Is Equal? " + isDiffEqual);
+        assert !isDiffEqual;
+
+
+        int[][] leftNeighbour = {
+                {0, 1, 2},
+                {4, 6, 3},
+                {7, 5, 8}
+        };
+
+        int[][] rightNeighbour = {
+                {1, 2, 0},
+                {4, 6, 3},
+                {7, 5, 8}
+        };
+
+        int[][] lowerNeighbour = {
+                {1, 6, 2},
+                {4, 0, 3},
+                {7, 5, 8}
+        };
+        final List<Board> expectedNeighbours = Arrays.asList(new Board(leftNeighbour), new Board(rightNeighbour), new Board(lowerNeighbour));
+
+        final Iterable<Board> neighborBoards = board.neighbors();
+        assert neighborBoards.iterator().hasNext();
+        neighborBoards.forEach(b -> {
+            assert expectedNeighbours.contains(b);
+        });
+
+    }
 }
