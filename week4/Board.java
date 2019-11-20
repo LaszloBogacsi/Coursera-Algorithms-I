@@ -95,28 +95,29 @@ public class Board {
         List<Board> neighbouringBoards = new ArrayList<>();
         // go left (col -1)
         if (col - 1 >= 0) {
-            neighbouringBoards.add(new Board(exchangeZeroTo(row, col, row, col - 1)));
+            neighbouringBoards.add(new Board(exchangeTo(row, col, row, col - 1)));
         }
         // go right (col +1)
         if (col + 1 <= dimension()) {
-            neighbouringBoards.add(new Board(exchangeZeroTo(row, col, row, col + 1)));
+            neighbouringBoards.add(new Board(exchangeTo(row, col, row, col + 1)));
         }
         // go down (row + 1)
         if (row + 1 <= dimension()) {
-            neighbouringBoards.add(new Board(exchangeZeroTo(row, col, row + 1, col)));
+            neighbouringBoards.add(new Board(exchangeTo(row, col, row + 1, col)));
         }
         // go up (row - 1)
         if (row - 1 >= 0) {
-            neighbouringBoards.add(new Board(exchangeZeroTo(row, col, row - 1, col)));
+            neighbouringBoards.add(new Board(exchangeTo(row, col, row - 1, col)));
         }
 
         return neighbouringBoards;
     }
 
-    private int[][] exchangeZeroTo(int row, int col, int newRow, int newCol) {
-        int[][] copy = Arrays.stream(tiles).map(int[]::clone).toArray(int[][]::new);
+    private int[][] exchangeTo(int row, int col, int newRow, int newCol) {
+        int[][] copy = getCopy();
         int valToMove = copy[newRow][newCol];
-        copy[newRow][newCol] = 0;
+        int valFromMove = copy[row][col];
+        copy[newRow][newCol] = valFromMove;
         copy[row][col] = valToMove;
         return copy;
     }
@@ -136,8 +137,18 @@ public class Board {
         return new int[]{row, col};
     }
 
-    //    // a board that is obtained by exchanging any pair of tiles
-//    public Board twin()
+        // a board that is obtained by exchanging any pair of tiles
+    public Board twin() {
+//         avoid row of 0, and swap the col 0 with col 1;
+        int[] zeroPos = getZeroPos(tiles);
+        int row = zeroPos[0];
+        int swapRow = row == 0 ? row + 1 : row == dimension() -1 ? row - 1  : row + 1;
+        return new Board(exchangeTo(swapRow, 0, swapRow, 1));
+    }
+
+    private int[][] getCopy() {
+        return Arrays.stream(tiles).map(int[]::clone).toArray(int[][]::new);
+    }
 
     // unit testing (not graded)
     public static void main(String[] args) {
@@ -218,6 +229,16 @@ public class Board {
         neighborBoards.forEach(b -> {
             assert expectedNeighbours.contains(b);
         });
+
+        int[][] threeByThreeTwin = {
+                {1, 0, 2},
+                {6, 4, 3},
+                {7, 5, 8}
+        };
+
+        boolean isTwin = board.twin().equals(new Board(threeByThreeTwin));
+        StdOut.println("Twin board? " + isTwin);
+        assert isTwin;
 
     }
 }
