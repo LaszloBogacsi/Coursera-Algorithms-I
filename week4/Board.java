@@ -48,7 +48,7 @@ public class Board {
     }
 
     private boolean isInPlace(int row, int col, int tileValue) {
-        return tileValue == (row * this.dimension() + col);
+        return tileValue == (row * this.dimension() + col) + 1;
     }
 
     // sum of Manhattan distances between tiles and goal
@@ -59,8 +59,8 @@ public class Board {
                 int t = tiles[i][j];
                 if (t != 0 && !isInPlace(i, j, t)) {
                     int dx, dy;
-                    int tx = t / this.dimension();
-                    int ty = t - (tx * this.dimension());
+                    int tx = (t-1) / this.dimension();
+                    int ty = (t-1) - (tx * this.dimension());
                     dx = Math.abs(i - tx);
                     dy = Math.abs(j - ty);
                     System.out.println(t + ": " + dx + " " + dy);
@@ -138,7 +138,7 @@ public class Board {
 
     //    // a board that is obtained by exchanging any pair of tiles
 //    public Board twin()
-//
+
     // unit testing (not graded)
     public static void main(String[] args) {
         int[][] threeByThree = {
@@ -149,9 +149,9 @@ public class Board {
         Board board = new Board(threeByThree);
 
         int[][] threeByThreeSolved = {
-                {0, 1, 2},
-                {3, 4, 5},
-                {6, 7, 8}
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 0}
         };
         Board solvedBoard = new Board(threeByThreeSolved);
 
@@ -166,14 +166,14 @@ public class Board {
 
         final int hamming = board.hamming();
         StdOut.println("Hamming Distance: " + hamming);
-        assert hamming == 6;
+        assert hamming == 5;
         final int solvedHamming = solvedBoard.hamming();
         StdOut.println("Hamming Distance (SOLVED): " + solvedHamming);
         assert solvedHamming == 0;
 
         final int manhattan = board.manhattan();
         StdOut.println("Manhattan Distance: " + manhattan);
-        assert manhattan == 9;
+        assert manhattan == 5;
         final int solvedManhattan = solvedBoard.manhattan();
         StdOut.println("Manhattan Distance (SOLVED): " + solvedManhattan);
         assert solvedManhattan == 0;
