@@ -1,17 +1,20 @@
 import edu.princeton.cs.algs4.MinPQ;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Solver {
     SearchNode goalNode;
     // find a solution to the initial board (using the A* algorithm)
+    private enum PriorityType {
+        MANHATTAN, HAMMING
+    }
     public Solver(Board initial) {
         if (initial == null) throw new IllegalArgumentException("Initial Board must not be null");
-        final Comparator<SearchNode> hammingPriorityFunction = Comparator.comparingInt(SearchNode::hammingPriority);
-        MinPQ pq = new MinPQ(hammingPriorityFunction);
 
-        final SearchNode initialSearchNode = new SearchNode(initial, 0, null);
+        final Comparator<SearchNode> priorityFunction = Comparator.comparingInt(SearchNode::priority);
+        MinPQ<SearchNode> pq = new MinPQ<>(priorityFunction);
+
+        final SearchNode initialSearchNode = createManhattanSearchNode(null, initial, 0);
         pq.insert(initialSearchNode);
         while (!pq.isEmpty()) {
             final SearchNode minNode = (SearchNode) pq.delMin();
@@ -20,9 +23,17 @@ public class Solver {
                 break;
             }
             for (Board neighbour : minNode.board.neighbors()) {
-                pq.insert(new SearchNode(neighbour, minNode.moves + 1, minNode));
+                if (minNode.previousNode == null) {
+                    pq.insert(createManhattanSearchNode(minNode, neighbour, minNode.moves + 1));
+                } else if (!neighbour.equals(minNode.previousNode.board)) {
+                    pq.insert(createManhattanSearchNode(minNode, neighbour, minNode.moves + 1));
+                }
             }
         }
+    }
+
+    private SearchNode createManhattanSearchNode(SearchNode minNode, Board neighbour, int moves) {
+        return new ManhattanSearchNode(neighbour, moves, minNode);
     }
 
     // is the initial board solvable? (see below)
@@ -58,22 +69,34 @@ public class Solver {
         private final Board board;
         private final int moves;
         private final SearchNode previousNode;
+        int priority;
 
-        SearchNode(Board board, int moves, SearchNode previousNode) {
+        SearchNode(Board board, int moves, SearchNode previousNode, PriorityType priorityType) {
 
             this.board = board;
             this.moves = moves;
             this.previousNode = previousNode;
+            this.priority = board.manhattan() + moves;
+            switch (priorityType) {
+                case MANHATTAN:
+                    this.priority = board.manhattan() + moves;
+                    break;
+                case HAMMING:
+                    this.priority = board.hamming() + moves;
+                    break;
+                default:
+                    throw new RuntimeException("Unknown priority type: " + priorityType);
+            }
         }
 
-        int hammingPriority() {
-            return board.hamming() + moves;
+        int priority() {
+            return priority;
         }
+    }
 
-        int manhattanPriority() {
-            return board.manhattan() + moves;
+    private class ManhattanSearchNode extends SearchNode {
+        ManhattanSearchNode(Board board, int moves, SearchNode previousNode) {
+            super(board, moves, previousNode, PriorityType.MANHATTAN);
         }
-
-
     }
 }

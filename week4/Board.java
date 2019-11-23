@@ -63,7 +63,6 @@ public class Board {
                     int ty = (t-1) - (tx * this.dimension());
                     dx = Math.abs(i - tx);
                     dy = Math.abs(j - ty);
-                    System.out.println(t + ": " + dx + " " + dy);
                     manhattan_distance += (dx + dy);
                 }
             }
@@ -78,16 +77,20 @@ public class Board {
 
     // does this board equal y?
     public boolean equals(Object y) {
-        Board that = (Board) y;
-        boolean hasSameSize = this.dimension() == that.dimension();
-        boolean tilesInSamePosition = Arrays.deepEquals(this.tiles, that.tiles);
-        return hasSameSize && tilesInSamePosition;
+        if (y instanceof Board) {
+            Board that = (Board) y;
+            boolean hasSameSize = this.dimension() == that.dimension();
+            boolean tilesInSamePosition = Arrays.deepEquals(this.tiles, that.tiles);
+            return hasSameSize && tilesInSamePosition;
+        } else {
+            return false;
+        }
     }
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
         final int[] zeroPos = getZeroPos(tiles);
-        System.out.println("zeroPos = " + zeroPos[0] + ":" +zeroPos[1]);
+//        System.out.println("zeroPos = " + zeroPos[0] + ":" +zeroPos[1]);
         return createNeighbour(zeroPos[0], zeroPos[1]);
     }
 
