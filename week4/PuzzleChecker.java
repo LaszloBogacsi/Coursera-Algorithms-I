@@ -50,13 +50,15 @@ public class PuzzleChecker {
 
             // solve the slider puzzle
             Board initial = new Board(tiles);
-            boards.add(initial);
             System.out.println(initial.toString());
-            System.out.println(initial.hamming());
-            System.out.println(initial.manhattan());
-            System.out.println("neighbours: " + initial.neighbors());
+//            System.out.println(initial.hamming());
+//            System.out.println(initial.manhattan());
+//            System.out.println("neighbours: " + initial.neighbors());
             Solver solver = new Solver(initial);
             StdOut.println(filename + ": " + solver.moves());
+            StdOut.println("Minimum number of moves = " + solver.moves());
+            for (Board board : solver.solution())
+                StdOut.println(board);
         }
 
     }

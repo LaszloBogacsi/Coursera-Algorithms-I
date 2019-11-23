@@ -98,11 +98,11 @@ public class Board {
             neighbouringBoards.add(new Board(exchangeTo(row, col, row, col - 1)));
         }
         // go right (col +1)
-        if (col + 1 <= dimension()) {
+        if (col + 1 < dimension()) {
             neighbouringBoards.add(new Board(exchangeTo(row, col, row, col + 1)));
         }
         // go down (row + 1)
-        if (row + 1 <= dimension()) {
+        if (row + 1 < dimension()) {
             neighbouringBoards.add(new Board(exchangeTo(row, col, row + 1, col)));
         }
         // go up (row - 1)
