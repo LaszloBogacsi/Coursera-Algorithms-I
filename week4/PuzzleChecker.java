@@ -34,7 +34,7 @@ import java.util.List;
 public class PuzzleChecker {
 
     public static void main(String[] args) {
-        args = new String[] {"puzzle4x4-43.txt"};
+        args = new String[] {"puzzle2x2-unsolvable1.txt"};
 
         for (String filename : args) {
             // read in the board specified in the filename
@@ -51,10 +51,13 @@ public class PuzzleChecker {
             Board initial = new Board(tiles);
             System.out.println(initial.toString());
             Solver solver = new Solver(initial);
-            StdOut.println(filename + ": " + solver.moves());
-            StdOut.println("Minimum number of moves = " + solver.moves());
-            for (Board board : solver.solution())
-                StdOut.println(board);
+            if (!solver.isSolvable())
+                StdOut.println("No solution possible");
+            else {
+                StdOut.println("Minimum number of moves = " + solver.moves());
+                for (Board board : solver.solution())
+                    StdOut.println(board);
+            }
         }
 
     }

@@ -4,29 +4,51 @@ import java.util.*;
 
 public class Solver {
     SearchNode goalNode;
+    boolean isSolvable;
     // find a solution to the initial board (using the A* algorithm)
     private enum PriorityType {
         MANHATTAN, HAMMING
     }
     public Solver(Board initial) {
         if (initial == null) throw new IllegalArgumentException("Initial Board must not be null");
+        Board twinBoard = initial.twin();
 
         final Comparator<SearchNode> priorityFunction = Comparator.comparingInt(SearchNode::priority);
         MinPQ<SearchNode> pq = new MinPQ<>(priorityFunction);
+        MinPQ<SearchNode> twinPQ = new MinPQ<>(priorityFunction);
 
         final SearchNode initialSearchNode = createManhattanSearchNode(null, initial, 0);
+        final SearchNode initialTwinSearchNode = createManhattanSearchNode(null, twinBoard, 0);
         pq.insert(initialSearchNode);
+        twinPQ.insert(initialTwinSearchNode);
         while (!pq.isEmpty()) {
             final SearchNode minNode = (SearchNode) pq.delMin();
+            final SearchNode twinMinNode = (SearchNode) twinPQ.delMin();
+
             if (minNode.board.isGoal()) {
                 goalNode = minNode;
+                isSolvable = true;
                 break;
             }
+
+            if (twinMinNode.board.isGoal()) {
+                isSolvable = false;
+                break;
+            }
+
+
             for (Board neighbour : minNode.board.neighbors()) {
                 if (minNode.previousNode == null) {
                     pq.insert(createManhattanSearchNode(minNode, neighbour, minNode.moves + 1));
                 } else if (!neighbour.equals(minNode.previousNode.board)) {
                     pq.insert(createManhattanSearchNode(minNode, neighbour, minNode.moves + 1));
+                }
+            }
+            for (Board neighbour : twinMinNode.board.neighbors()) {
+                if (twinMinNode.previousNode == null) {
+                    twinPQ.insert(createManhattanSearchNode(twinMinNode, neighbour, twinMinNode.moves + 1));
+                } else if (!neighbour.equals(twinMinNode.previousNode.board)) {
+                    twinPQ.insert(createManhattanSearchNode(twinMinNode, neighbour, twinMinNode.moves + 1));
                 }
             }
         }
@@ -38,7 +60,7 @@ public class Solver {
 
     // is the initial board solvable? (see below)
     public boolean isSolvable() {
-        return true;
+        return this.isSolvable;
     }
 
     // min number of moves to solve initial board
