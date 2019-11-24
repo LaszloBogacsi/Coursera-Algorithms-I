@@ -1,6 +1,10 @@
 import edu.princeton.cs.algs4.MinPQ;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 
 /**
  * Solver class initialized with an initial board tries to find the goal board and also tires to find the goalboard for a twin board
@@ -11,13 +15,6 @@ public class Solver {
     private boolean isSolvable;
 
     /**
-     * Enum representing the priority functions in use.
-     */
-    private enum PriorityType {
-        MANHATTAN, HAMMING
-    }
-
-    /**
      * find a solution to the initial board (using the A* algorithm)
      * Can throw IllegalArgumentException if initial board is null.
      * @param initial, a board to start the search from.
@@ -26,7 +23,7 @@ public class Solver {
         if (initial == null) throw new IllegalArgumentException("Initial Board must not be null");
         Board twinBoard = initial.twin();
 
-        final Comparator<SearchNode> priorityFunction = Comparator.comparingInt(SearchNode::priority);
+        final Comparator<SearchNode> priorityFunction = Comparator.comparingInt(searchNode -> searchNode.priority());
         MinPQ<SearchNode> initialPQ = new MinPQ<>(priorityFunction);
         MinPQ<SearchNode> twinPQ = new MinPQ<>(priorityFunction);
 
@@ -35,8 +32,8 @@ public class Solver {
         initialPQ.insert(initialSearchNode);
         twinPQ.insert(initialTwinSearchNode);
         while (!initialPQ.isEmpty()) {
-            final SearchNode minNode = (SearchNode) initialPQ.delMin();
-            final SearchNode twinMinNode = (SearchNode) twinPQ.delMin();
+            final SearchNode minNode = initialPQ.delMin();
+            final SearchNode twinMinNode = twinPQ.delMin();
 
             if (minNode.board.isGoal()) {
                 goalNode = minNode;
@@ -45,6 +42,7 @@ public class Solver {
             }
 
             if (twinMinNode.board.isGoal()) {
+                goalNode = null;
                 isSolvable = false;
                 break;
             }
@@ -61,11 +59,12 @@ public class Solver {
 
     // min number of moves to solve initial board
     public int moves() {
-        return goalNode.moves;
+        return goalNode != null ? goalNode.moves : null;
     }
 
     // sequence of boards in a shortest solution
     public Iterable<Board> solution() {
+        if (goalNode == null) return Collections.emptyList();
         SearchNode node = goalNode;
         List<Board> boards = new ArrayList<>();
         boards.add(node.board);
@@ -79,7 +78,7 @@ public class Solver {
 
     // test client (see below)
     public static void main(String[] args) {
-
+        // unit tests here
     }
 
 
@@ -94,41 +93,27 @@ public class Solver {
     }
 
     private SearchNode createManhattanSearchNode(SearchNode minNode, Board neighbour, int moves) {
-        return new ManhattanSearchNode(neighbour, moves, minNode);
+        return new SearchNode(neighbour, moves, minNode);
     }
 
     private static class SearchNode {
         private final Board board;
         private final int moves;
         private final SearchNode previousNode;
-        int priority;
+        private final int priority;
 
-        SearchNode(Board board, int moves, SearchNode previousNode, PriorityType priorityType) {
+        SearchNode(Board board, int moves, SearchNode previousNode) {
 
             this.board = board;
             this.moves = moves;
             this.previousNode = previousNode;
             this.priority = board.manhattan() + moves;
-            switch (priorityType) {
-                case MANHATTAN:
-                    this.priority = board.manhattan() + moves;
-                    break;
-                case HAMMING:
-                    this.priority = board.hamming() + moves;
-                    break;
-                default:
-                    throw new RuntimeException("Unknown priority type: " + priorityType);
-            }
         }
 
-        int priority() {
+        private int priority() {
             return priority;
         }
     }
 
-    private class ManhattanSearchNode extends SearchNode {
-        ManhattanSearchNode(Board board, int moves, SearchNode previousNode) {
-            super(board, moves, previousNode, PriorityType.MANHATTAN);
-        }
-    }
+
 }

@@ -16,12 +16,12 @@ public class Board {
      * the tile with 0 value is not considered as a tile, it's an empty space
      */
 
-    private int[][] tiles;
+    private final int[][] tiles;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
     public Board(int[][] tiles) {
-        this.tiles = tiles;
+        this.tiles = getCopy(tiles);
     }
 
     // string representation of this board
@@ -63,7 +63,7 @@ public class Board {
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
-        int manhattan_distance = 0;
+        int manhattanDistance = 0;
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
                 int t = tiles[i][j];
@@ -73,11 +73,11 @@ public class Board {
                     int ty = (t - 1) - (tx * this.dimension());
                     dx = Math.abs(i - tx);
                     dy = Math.abs(j - ty);
-                    manhattan_distance += (dx + dy);
+                    manhattanDistance += (dx + dy);
                 }
             }
         }
-        return manhattan_distance;
+        return manhattanDistance;
     }
 
     //    // is this board the goal board?
@@ -87,7 +87,7 @@ public class Board {
 
     // does this board equal y?
     public boolean equals(Object y) {
-        if (y instanceof Board) {
+        if (y != null && y.getClass() == this.getClass()) {
             Board that = (Board) y;
             boolean hasSameSize = this.dimension() == that.dimension();
             boolean tilesInSamePosition = Arrays.deepEquals(this.tiles, that.tiles);
@@ -136,7 +136,7 @@ public class Board {
     }
 
     private int[][] exchangeTo(int row, int col, int newRow, int newCol) {
-        int[][] copy = getCopy();
+        int[][] copy = getCopy(tiles);
         int valToMove = copy[newRow][newCol];
         int valFromMove = copy[row][col];
         copy[newRow][newCol] = valFromMove;
@@ -144,12 +144,12 @@ public class Board {
         return copy;
     }
 
-    private int[] getZeroPos(int[][] tiles) {
+    private int[] getZeroPos(int[][] tilesArr) {
         int row = 0;
         int col = 0;
-        for (int i = 0; i < tiles.length; i++) {
-            for (int j = 0; j < tiles[i].length; j++) {
-                int t = tiles[i][j];
+        for (int i = 0; i < tilesArr.length; i++) {
+            for (int j = 0; j < tilesArr[i].length; j++) {
+                int t = tilesArr[i][j];
                 if (t == 0) {
                     row = i;
                     col = j;
@@ -159,8 +159,8 @@ public class Board {
         return new int[]{row, col};
     }
 
-    private int[][] getCopy() {
-        return Arrays.stream(tiles).map(int[]::clone).toArray(int[][]::new);
+    private int[][] getCopy(int[][] tilesToCopy) {
+        return Arrays.stream(tilesToCopy).map(int[]::clone).toArray(int[][]::new);
     }
 
     // unit testing (not graded)
