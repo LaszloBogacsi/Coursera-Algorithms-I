@@ -59,12 +59,12 @@ public class Solver {
 
     // min number of moves to solve initial board
     public int moves() {
-        return goalNode != null ? goalNode.moves : 0;
+        return goalNode != null ? goalNode.moves : -1;
     }
 
     // sequence of boards in a shortest solution
     public Iterable<Board> solution() {
-        if (goalNode == null) return Collections.emptyList();
+        if (goalNode == null) return null;
         SearchNode node = goalNode;
         List<Board> boards = new ArrayList<>();
         boards.add(node.board);
