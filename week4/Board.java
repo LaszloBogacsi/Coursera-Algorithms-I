@@ -5,7 +5,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Board represents a square puzzle board that holds the tiles and can determine how far is the current board from the solved state,
+ * using 2 different strategies, hamming and manhattan distances.
+ */
+
 public class Board {
+    /**
+     * tiles holds the game tiles in a square 2D int array, a 3x3 board has 9 values and 8 tiles,
+     * the tile with 0 value is not considered as a tile, it's an empty space
+     */
+
     private int[][] tiles;
 
     // create a board from an n-by-n array of tiles,
@@ -59,8 +69,8 @@ public class Board {
                 int t = tiles[i][j];
                 if (t != 0 && !isInPlace(i, j, t)) {
                     int dx, dy;
-                    int tx = (t-1) / this.dimension();
-                    int ty = (t-1) - (tx * this.dimension());
+                    int tx = (t - 1) / this.dimension();
+                    int ty = (t - 1) - (tx * this.dimension());
                     dx = Math.abs(i - tx);
                     dy = Math.abs(j - ty);
                     manhattan_distance += (dx + dy);
@@ -70,7 +80,7 @@ public class Board {
         return manhattan_distance;
     }
 
-//    // is this board the goal board?
+    //    // is this board the goal board?
     public boolean isGoal() {
         return this.hamming() == 0;
     }
@@ -92,6 +102,15 @@ public class Board {
         final int[] zeroPos = getZeroPos(tiles);
 //        System.out.println("zeroPos = " + zeroPos[0] + ":" +zeroPos[1]);
         return createNeighbour(zeroPos[0], zeroPos[1]);
+    }
+
+    // a board that is obtained by exchanging any pair of tiles
+    public Board twin() {
+//         avoid row of 0, and swap the col 0 with col 1;
+        int[] zeroPos = getZeroPos(tiles);
+        int row = zeroPos[0];
+        int swapRow = row == 0 ? row + 1 : row == dimension() - 1 ? row - 1 : row + 1;
+        return new Board(exchangeTo(swapRow, 0, swapRow, 1));
     }
 
     private List<Board> createNeighbour(int row, int col) {
@@ -140,15 +159,6 @@ public class Board {
         return new int[]{row, col};
     }
 
-        // a board that is obtained by exchanging any pair of tiles
-    public Board twin() {
-//         avoid row of 0, and swap the col 0 with col 1;
-        int[] zeroPos = getZeroPos(tiles);
-        int row = zeroPos[0];
-        int swapRow = row == 0 ? row + 1 : row == dimension() -1 ? row - 1  : row + 1;
-        return new Board(exchangeTo(swapRow, 0, swapRow, 1));
-    }
-
     private int[][] getCopy() {
         return Arrays.stream(tiles).map(int[]::clone).toArray(int[][]::new);
     }
@@ -172,9 +182,9 @@ public class Board {
         StdOut.println("toString: " + board.toString());
         assert board.toString().equals(
                 "3\n" +
-                " 1 0 2\n" +
-                " 4 6 3\n" +
-                " 7 5 8");
+                        " 1 0 2\n" +
+                        " 4 6 3\n" +
+                        " 7 5 8");
         StdOut.println("Dimension: " + board.dimension());
         assert board.dimension() == threeByThree.length;
 

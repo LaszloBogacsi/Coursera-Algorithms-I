@@ -2,27 +2,40 @@ import edu.princeton.cs.algs4.MinPQ;
 
 import java.util.*;
 
+/**
+ * Solver class initialized with an initial board tries to find the goal board and also tires to find the goalboard for a twin board
+ * if a twinboard has a solution than the initial board is deemed unsolvable
+ */
 public class Solver {
-    SearchNode goalNode;
-    boolean isSolvable;
-    // find a solution to the initial board (using the A* algorithm)
+    private SearchNode goalNode;
+    private boolean isSolvable;
+
+    /**
+     * Enum representing the priority functions in use.
+     */
     private enum PriorityType {
         MANHATTAN, HAMMING
     }
+
+    /**
+     * find a solution to the initial board (using the A* algorithm)
+     * Can throw IllegalArgumentException if initial board is null.
+     * @param initial, a board to start the search from.
+     */
     public Solver(Board initial) {
         if (initial == null) throw new IllegalArgumentException("Initial Board must not be null");
         Board twinBoard = initial.twin();
 
         final Comparator<SearchNode> priorityFunction = Comparator.comparingInt(SearchNode::priority);
-        MinPQ<SearchNode> pq = new MinPQ<>(priorityFunction);
+        MinPQ<SearchNode> initialPQ = new MinPQ<>(priorityFunction);
         MinPQ<SearchNode> twinPQ = new MinPQ<>(priorityFunction);
 
         final SearchNode initialSearchNode = createManhattanSearchNode(null, initial, 0);
         final SearchNode initialTwinSearchNode = createManhattanSearchNode(null, twinBoard, 0);
-        pq.insert(initialSearchNode);
+        initialPQ.insert(initialSearchNode);
         twinPQ.insert(initialTwinSearchNode);
-        while (!pq.isEmpty()) {
-            final SearchNode minNode = (SearchNode) pq.delMin();
+        while (!initialPQ.isEmpty()) {
+            final SearchNode minNode = (SearchNode) initialPQ.delMin();
             final SearchNode twinMinNode = (SearchNode) twinPQ.delMin();
 
             if (minNode.board.isGoal()) {
@@ -36,29 +49,12 @@ public class Solver {
                 break;
             }
 
-
-            for (Board neighbour : minNode.board.neighbors()) {
-                if (minNode.previousNode == null) {
-                    pq.insert(createManhattanSearchNode(minNode, neighbour, minNode.moves + 1));
-                } else if (!neighbour.equals(minNode.previousNode.board)) {
-                    pq.insert(createManhattanSearchNode(minNode, neighbour, minNode.moves + 1));
-                }
-            }
-            for (Board neighbour : twinMinNode.board.neighbors()) {
-                if (twinMinNode.previousNode == null) {
-                    twinPQ.insert(createManhattanSearchNode(twinMinNode, neighbour, twinMinNode.moves + 1));
-                } else if (!neighbour.equals(twinMinNode.previousNode.board)) {
-                    twinPQ.insert(createManhattanSearchNode(twinMinNode, neighbour, twinMinNode.moves + 1));
-                }
-            }
+            insertNeighboursFor(initialPQ, minNode);
+            insertNeighboursFor(twinPQ, twinMinNode);
         }
     }
 
-    private SearchNode createManhattanSearchNode(SearchNode minNode, Board neighbour, int moves) {
-        return new ManhattanSearchNode(neighbour, moves, minNode);
-    }
-
-    // is the initial board solvable? (see below)
+    // is the initial board solvable?
     public boolean isSolvable() {
         return this.isSolvable;
     }
@@ -87,7 +83,21 @@ public class Solver {
     }
 
 
-    private class SearchNode {
+    private void insertNeighboursFor(MinPQ<SearchNode> pq, SearchNode minNode) {
+        for (Board neighbour : minNode.board.neighbors()) {
+            if (minNode.previousNode == null) {
+                pq.insert(createManhattanSearchNode(minNode, neighbour, minNode.moves + 1));
+            } else if (!neighbour.equals(minNode.previousNode.board)) {
+                pq.insert(createManhattanSearchNode(minNode, neighbour, minNode.moves + 1));
+            }
+        }
+    }
+
+    private SearchNode createManhattanSearchNode(SearchNode minNode, Board neighbour, int moves) {
+        return new ManhattanSearchNode(neighbour, moves, minNode);
+    }
+
+    private static class SearchNode {
         private final Board board;
         private final int moves;
         private final SearchNode previousNode;
