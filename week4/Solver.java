@@ -23,7 +23,7 @@ public class Solver {
         if (initial == null) throw new IllegalArgumentException("Initial Board must not be null");
         Board twinBoard = initial.twin();
 
-        final Comparator<SearchNode> priorityFunction = Comparator.comparingInt(searchNode -> searchNode.priority());
+        final Comparator<SearchNode> priorityFunction = Comparator.comparingInt(SearchNode::getPriority);
         MinPQ<SearchNode> initialPQ = new MinPQ<>(priorityFunction);
         MinPQ<SearchNode> twinPQ = new MinPQ<>(priorityFunction);
 
@@ -59,7 +59,7 @@ public class Solver {
 
     // min number of moves to solve initial board
     public int moves() {
-        return goalNode != null ? goalNode.moves : null;
+        return goalNode != null ? goalNode.moves : 0;
     }
 
     // sequence of boards in a shortest solution
@@ -110,7 +110,7 @@ public class Solver {
             this.priority = board.manhattan() + moves;
         }
 
-        private int priority() {
+        private int getPriority() {
             return priority;
         }
     }
