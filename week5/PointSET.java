@@ -36,6 +36,7 @@ public class PointSET {
     }                         // draw all points to standard draw
 //
     public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null) throw new IllegalArgumentException();
         Stack<Point2D> pointsInRect = new Stack<>();
         final Iterator<Point2D> it = points.iterator();
         while (it.hasNext()) {
@@ -48,6 +49,7 @@ public class PointSET {
     }             // all points that are inside the rectangle (or on the boundary)
 //
     public Point2D nearest(Point2D p) {
+        if (p == null) throw new IllegalArgumentException();
         if (points.isEmpty()) return null;
         Point2D closest = p;
         final Iterator<Point2D> it = points.iterator();
