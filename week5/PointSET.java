@@ -38,9 +38,7 @@ public class PointSET {
     public Iterable<Point2D> range(RectHV rect) {
         if (rect == null) throw new IllegalArgumentException();
         Stack<Point2D> pointsInRect = new Stack<>();
-        final Iterator<Point2D> it = points.iterator();
-        while (it.hasNext()) {
-            final Point2D point = it.next();
+        for (Point2D point : points) {
             if (rect.contains(point)) {
                 pointsInRect.push(point);
             }
@@ -51,10 +49,8 @@ public class PointSET {
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
         if (points.isEmpty()) return null;
-        Point2D closest = p;
-        final Iterator<Point2D> it = points.iterator();
-        while (it.hasNext()) {
-            final Point2D point = it.next();
+        Point2D closest = new Point2D(-2, -2); // assuming x, y is between 0,1 this will be the furthest from all
+        for (Point2D point : points) {
             if (point.distanceTo(p) < p.distanceTo(closest) && p != point) {
                 closest = point;
             }
