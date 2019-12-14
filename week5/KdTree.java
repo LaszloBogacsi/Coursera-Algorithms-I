@@ -1,10 +1,9 @@
-import edu.princeton.cs.algs4.BST;
-import edu.princeton.cs.algs4.Point2D;
-import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.*;
 
 public class KdTree {
     private Node root;
+    Stack<Point2D> pointsInRect;
+
     private static class Node {
         private final Point2D p;      // the point
         private final RectHV rect;    // the axis-aligned rectangle corresponding to this node
@@ -80,37 +79,53 @@ public class KdTree {
 
 
     public void draw() {
-        traverseInOrderX(root);
+        traverseInOrderXAndDraw(root);
     }                         // draw all points to standard draw
 
-    private void traverseInOrderX(Node node) {
+    private void traverseInOrderXAndDraw(Node node) {
         if (node != null) {
-            traverseInOrderY(node.lb);
+            traverseInOrderYAndDraw(node.lb);
             StdDraw.setPenColor(StdDraw.BLACK);
             StdDraw.setPenRadius(0.01);
             node.p.draw();
             StdDraw.setPenColor(StdDraw.RED);
             StdDraw.setPenRadius();
             node.rect.draw();
-            traverseInOrderY(node.rt);
+            traverseInOrderYAndDraw(node.rt);
         }
     }
 
-    private void traverseInOrderY(Node node) {
+    private void traverseInOrderYAndDraw(Node node) {
         if (node != null) {
-            traverseInOrderX(node.lb);
+            traverseInOrderXAndDraw(node.lb);
             StdDraw.setPenColor(StdDraw.BLACK);
             StdDraw.setPenRadius(0.01);
             node.p.draw();
             StdDraw.setPenColor(StdDraw.BLUE);
             StdDraw.setPenRadius();
             node.rect.draw();
-            traverseInOrderX(node.rt);
+            traverseInOrderXAndDraw(node.rt);
         }
     }
 
     //
-//    public Iterable<Point2D> range(RectHV rect)             // all points that are inside the rectangle (or on the boundary)
+    public Iterable<Point2D> range(RectHV rect) {
+        pointsInRect = new Stack<>();
+        traverseInOrder(root, rect);
+        return pointsInRect;
+    }             // all points that are inside the rectangle (or on the boundary)
+
+
+    private void traverseInOrder(Node node, RectHV rect) {
+        if (node != null) {
+            traverseInOrder(node.lb, rect);
+            if (rect.contains(node.p)) {
+                pointsInRect.push(node.p);
+            }
+            traverseInOrder(node.rt, rect);
+        }
+    }
+
 //
 //    public Point2D nearest(Point2D p)             // a nearest neighbor in the set to point p; null if the set is empty
 //
