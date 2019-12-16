@@ -39,7 +39,6 @@ public class KdTree {
         RectHV rootRect = new RectHV(0, 0, p.x(), 1);
         root = insert(root, p, rootRect);
     }              // add the point to the set (if it is not already in the set)
-//
 
     private Node insert(Node node, Point2D p, RectHV rect) {
         if (node == null) return new Node(p, rect, 1);
@@ -108,7 +107,6 @@ public class KdTree {
         }
     }
 
-    //
     public Iterable<Point2D> range(RectHV rect) {
         pointsInRect = new Stack<>();
         traverseInOrder(root, rect);
@@ -126,9 +124,25 @@ public class KdTree {
         }
     }
 
-//
-//    public Point2D nearest(Point2D p)             // a nearest neighbor in the set to point p; null if the set is empty
-//
+
+    public Point2D nearest(Point2D p) {
+        final Stack<Point2D> closest = new Stack<>();
+        closest.push(root.p);
+        traverseInOrderNearest(root, p, closest);
+        return closest.pop();
+    }             // a nearest neighbor in the set to point p; null if the set is empty
+
+
+    private void traverseInOrderNearest(Node node, Point2D p, Stack<Point2D> closest) {
+        if (node != null) {
+            traverseInOrderNearest(node.lb, p, closest);
+            if (node.p.distanceTo(p) < p.distanceTo(closest.peek())) {
+                closest.push(node.p);
+            }
+            traverseInOrderNearest(node.rt, p, closest);
+        }
+    }
+
     public static void main(String[] args) {
 
     }                  // unit testing of the methods (optional)
