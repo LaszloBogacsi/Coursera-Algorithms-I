@@ -21,7 +21,7 @@ public class NearestNeighborVisualizer {
 
         // initialize the two data structures with point from file
 //        String filename = args[0];
-        String filename = "input10.txt";
+        String filename = "input10K.txt";
         In in = new In(filename);
         PointSET brute = new PointSET();
         KdTree kdtree = new KdTree();
@@ -40,7 +40,8 @@ public class NearestNeighborVisualizer {
             // the location (x, y) of the mouse
             double x = StdDraw.mouseX();
             double y = StdDraw.mouseY();
-            Point2D query = new Point2D(x, y);
+//            Point2D query = new Point2D(x, y);
+            Point2D query = new Point2D(0.81, 0.3);
 
             // draw all of the points
             StdDraw.clear();

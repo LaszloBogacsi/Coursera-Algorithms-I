@@ -1,4 +1,7 @@
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdDraw;
 
 public class KdTree {
     private Node root;
@@ -7,9 +10,9 @@ public class KdTree {
     private static class Node {
         private final Point2D p;      // the point
         private final RectHV rect;    // the axis-aligned rectangle corresponding to this node
-        private  Node lb;             // the left/bottom subtree
-        private  Node rt;             // the right/top subtree
-        private  int size;            // the number of nodes in the subtree
+        private Node lb;             // the left/bottom subtree
+        private Node rt;             // the right/top subtree
+        private int size;            // the number of nodes in the subtree
 
         public Node(Point2D p, RectHV rect, int size) {
             this.p = p;
@@ -43,15 +46,15 @@ public class KdTree {
     private Node insert(Node node, Point2D p, RectHV rect) {
         if (node == null) return new Node(p, rect, 1);
         if (p.x() < node.p.x()) node.lb = insertY(node.lb, p, new RectHV(node.rect.xmin(), node.rect.ymin(), node.rect.xmax(), p.y()));
-        else if (p.x() >= node.p.x() && p.y() != node.p.y()) node.rt = insertY(node.rt, p, new RectHV(node.rect.xmax(), node.rect.ymin(), 1, p.y()));
+        else if (p.x() >= node.p.x() || p.y() != node.p.y()) node.rt = insertY(node.rt, p, new RectHV(node.rect.xmax(), node.rect.ymin(), 1, p.y()));
         node.size = 1 + size(node.lb) + size(node.rt);
         return node;
     }
 
-    private Node insertY (Node node, Point2D p, RectHV rect) {
+    private Node insertY(Node node, Point2D p, RectHV rect) {
         if (node == null) return new Node(p, rect, 1);
         if (p.y() < node.p.y()) node.lb = insert(node.lb, p, new RectHV(node.rect.xmin(), node.rect.ymin(), p.x(), node.rect.ymax()));
-        else if (p.y() >= node.p.y() && p.x() != node.p.x()) node.rt = insert(node.rt, p, new RectHV(node.rect.xmin(), node.rect.ymax(), p.x(), 1));
+        else if (p.y() >= node.p.y() || p.x() != node.p.x()) node.rt = insert(node.rt, p, new RectHV(node.rect.xmin(), node.rect.ymax(), p.x(), 1));
         node.size = 1 + size(node.lb) + size(node.rt);
         return node;
     }
@@ -124,23 +127,28 @@ public class KdTree {
         }
     }
 
-
     public Point2D nearest(Point2D p) {
         final Stack<Point2D> closest = new Stack<>();
         closest.push(root.p);
         traverseInOrderNearest(root, p, closest);
+        System.out.println(closest.size());
         return closest.pop();
     }             // a nearest neighbor in the set to point p; null if the set is empty
 
 
     private void traverseInOrderNearest(Node node, Point2D p, Stack<Point2D> closest) {
-        if (node != null) {
+        if (node == null) return;
+        if (node.p.distanceSquaredTo(p) < p.distanceSquaredTo(closest.peek())) {
+            closest.push(node.p);
+        }
+        if (node.lb != null && closest.peek().distanceSquaredTo(p) > node.lb.rect.distanceSquaredTo(p)) {
             traverseInOrderNearest(node.lb, p, closest);
-            if (node.p.distanceTo(p) < p.distanceTo(closest.peek())) {
-                closest.push(node.p);
-            }
+        }
+        if (node.rt != null && closest.peek().distanceSquaredTo(p) > node.rt.rect.distanceSquaredTo(p)) {
+
             traverseInOrderNearest(node.rt, p, closest);
         }
+
     }
 
     public static void main(String[] args) {
